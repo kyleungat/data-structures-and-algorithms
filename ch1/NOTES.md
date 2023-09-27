@@ -16,3 +16,5 @@ variants
 
 Golang's Generic for declaration of Set interface:
 https://go.dev/doc/tutorial/generics
+
+Comparing 2 maps, use "reflect" package's DeepEqual func

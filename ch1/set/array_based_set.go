@@ -10,6 +10,10 @@ type ArrayBasedSet[T comparable] struct {
 	array []T
 }
 
+func NewArrayBasedSet[T comparable]() ArrayBasedSet[T] {
+	return ArrayBasedSet[T]{}
+}
+
 func (s *ArrayBasedSet[T]) Add(value T) error {
 	exist := slices.Contains(s.array, value)
 	if exist {
@@ -20,38 +24,15 @@ func (s *ArrayBasedSet[T]) Add(value T) error {
 }
 
 func (s *ArrayBasedSet[T]) Equal(t Set[T]) bool {
-	if s.Size() != t.Size() {
-		return false
-	}
-
-	var (
-		hash = make(map[T]struct{})
-	)
-
-	for _, v := range s.array {
-		hash[v] = struct{}{}
-	}
-
-	for i := 0; i < t.Size(); i++ {
-		if _, exist := hash[t.Members()[i]]; !exist {
-			return false
-		}
-	}
-	return true
-}
-
-func (s *ArrayBasedSet[T]) Get(index int) (value *T) {
-	if index < 0 || index >= len(s.array) {
-		return nil
-	}
-	return &s.array[index]
+	intersection := s.Intersect(t) 
+	return intersection.Size() == s.Size() && s.Size() == t.Size()
 }
 
 func (s *ArrayBasedSet[T]) Intersect(t Set[T]) Set[T] {
 	var (
 		hash = make(map[T]struct{})
 		result []T
-		resultSet Set[T]
+		resultSet = ArrayBasedSet[T]{}
 	)
 
 	for _, v := range s.array {
@@ -68,7 +49,7 @@ func (s *ArrayBasedSet[T]) Intersect(t Set[T]) Set[T] {
 		resultSet.Add(v)
 	}
 
-	return resultSet
+	return &resultSet
 }
 
 func (s *ArrayBasedSet[T]) IsNull() bool {
@@ -76,21 +57,8 @@ func (s *ArrayBasedSet[T]) IsNull() bool {
 }
 
 func (s *ArrayBasedSet[T]) IsSubsetOf(t Set[T]) bool {
-	var (
-		hash = make(map[T]struct{})
-	)
-
-	for _, v := range t.Members() {
-		hash[v] = struct{}{}
-	}
-
-	for _, v := range s.array {
-		if _, exist := hash[v]; !exist {
-			return false
-		}
-	}
-
-	return true
+	intersection := s.Intersect(t) 
+	return intersection.Size() == s.Size() 
 }
 
 func (s *ArrayBasedSet[T]) Members() []T {
@@ -98,23 +66,29 @@ func (s *ArrayBasedSet[T]) Members() []T {
 }
 
 func (s *ArrayBasedSet[T]) Remove(value T) {
-	index := s.Search(value)
-	s.array = slices.Delete(s.array, index, index + 1)
-}
-
-// If no value is found, return -1. Othewise, return the index.
-func (s *ArrayBasedSet[T]) Search(value T) (index int) {
 	var (
-		result = -1
+		index = -1
 	)
 
 	for i := 0; i < len(s.array); i++ {
 		if s.array[i] == value {
-			return i
+			index = i
 		}
 	}
 
-	return result
+	if index != -1 {
+		s.array = slices.Delete(s.array, index, index + 1)
+	}
+}
+
+func (s *ArrayBasedSet[T]) Search(value T) bool {
+	for i := 0; i < len(s.array); i++ {
+		if s.array[i] == value {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (s *ArrayBasedSet[T]) Size() int {
@@ -124,7 +98,7 @@ func (s *ArrayBasedSet[T]) Size() int {
 func (s *ArrayBasedSet[T]) Union(t Set[T]) Set[T] {
 	var (
 		hash = make(map[T]struct{})
-		resultSet Set[T]
+		resultSet = ArrayBasedSet[T]{}
 	)
 
 	for _, v := range s.array {
@@ -139,5 +113,5 @@ func (s *ArrayBasedSet[T]) Union(t Set[T]) Set[T] {
 		resultSet.Add(key)
 	}
 
-	return resultSet
+	return &resultSet
 }
