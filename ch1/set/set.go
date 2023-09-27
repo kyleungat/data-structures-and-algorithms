@@ -1,15 +1,14 @@
 package set
 
-type Set interface {
-	Add(value any) error
-	Equal(s Set) bool
-	Get(index int) (value any)
-	Init(values ...any) Set
-	Intersect(s Set) Set
+type Set[T comparable] interface {
+	Add(value T) error
+	Equal(s Set[T]) bool
+	Get(index int) (value T)
+	Intersect(s Set[T]) Set[T]
 	IsNull() bool
-	IsSubsetOf(s Set) bool
-	Remove(value any)
-	Search(value any) (index int)
+	IsSubsetOf(s Set[T]) bool
+	Remove(value T)
+	Search(value T) (index int)
 	Size() int
-	Union(s Set) Set
+	Union(s Set[T]) Set[T]
 }
