@@ -1,16 +1,23 @@
 package set
 
+import (
+	"fmt"
+)
+
 type HashBasedSet[T comparable] struct {
 	hash map[T]struct{}
 }
 
-func NewHashBasedSet[T comparable]() HashBasedSet[T] {
-	return HashBasedSet[T]{
+func NewHashBasedSet[T comparable]() *HashBasedSet[T] {
+	return &HashBasedSet[T]{
 		hash: make(map[T]struct{}),
 	}
 }
 
 func (s *HashBasedSet[T]) Add(value T) error {
+	if _, exist := s.hash[value]; exist {
+		return fmt.Errorf("element %v already exists", value)
+	}
 	s.hash[value] = struct{}{}
 	return nil
 }

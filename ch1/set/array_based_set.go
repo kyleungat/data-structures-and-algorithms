@@ -10,8 +10,8 @@ type ArrayBasedSet[T comparable] struct {
 	array []T
 }
 
-func NewArrayBasedSet[T comparable]() ArrayBasedSet[T] {
-	return ArrayBasedSet[T]{}
+func NewArrayBasedSet[T comparable]() *ArrayBasedSet[T] {
+	return &ArrayBasedSet[T]{}
 }
 
 func (s *ArrayBasedSet[T]) Add(value T) error {
@@ -97,21 +97,17 @@ func (s *ArrayBasedSet[T]) Size() int {
 
 func (s *ArrayBasedSet[T]) Union(t Set[T]) Set[T] {
 	var (
-		hash = make(map[T]struct{})
+		// hash = make(map[T]struct{})
 		resultSet = ArrayBasedSet[T]{}
 	)
 
 	for _, v := range s.array {
-		hash[v] = struct{}{}
+		resultSet.Add(v)
 	}
 
 	for _, v := range t.Members() {
-		delete(hash, v)
+		resultSet.Add(v)
 	}
-
-	for key, _ := range hash {
-		resultSet.Add(key)
-	}
-
+	
 	return &resultSet
 }
